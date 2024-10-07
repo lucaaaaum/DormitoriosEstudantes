@@ -80,13 +80,13 @@ type estudante struct {
 
 func (e *estudante) str() string {
 	comoString := "Nome: " + e.nome + "\n"
-    var curso string
-    if e.curso == C1 {
-        curso = "C1"
-    } else {
-        curso = "C2"
-    }
-    comoString += "Curso: " + curso + "\n"
+	var curso string
+	if e.curso == C1 {
+		curso = "C1"
+	} else {
+		curso = "C2"
+	}
+	comoString += "Curso: " + curso + "\n"
 
 	if len(e.estudantesIncompatíveis) > 0 {
 		comoString += "Incompatíveis: "
