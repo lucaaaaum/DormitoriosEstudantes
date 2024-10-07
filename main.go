@@ -7,8 +7,13 @@ import (
 
 func main() {
 	estudantes := iniciarListaDeEstudantes()
-    estudantes = registrarIncompatibilidades(estudantes)
-    fmt.Printf("estudantes: %v\n", estudantes)
+	estudantes = registrarIncompatibilidades(estudantes)
+	fmt.Printf("estudantes: %v\n", estudantes)
+
+    estudantesC1 := filtrarEstudantesPorTipo(estudantes, C1)
+    fmt.Printf("estudantesC1: %v\n", estudantesC1)
+    estudantesC2 := filtrarEstudantesPorTipo(estudantes, C2)
+    fmt.Printf("estudantesC2: %v\n", estudantesC2)
 }
 
 func iniciarListaDeEstudantes() []estudante {
@@ -48,6 +53,16 @@ func registrarIncompatibilidades(estudantes []estudante) []estudante {
 		}
 	}
 	return estudantes
+}
+
+func filtrarEstudantesPorTipo(estudantes []estudante, curso Curso) []estudante {
+    estudantesFiltrados := make([]estudante, 0)
+    for i := 0; i < len(estudantes); i++ {
+        if estudantes[i].curso == curso {
+            estudantesFiltrados = append(estudantesFiltrados, estudantes[i])
+        }
+    }
+    return estudantesFiltrados
 }
 
 type Curso int
