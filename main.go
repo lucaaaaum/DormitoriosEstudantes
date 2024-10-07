@@ -8,9 +8,9 @@ import (
 func main() {
 	estudantes := iniciarListaDeEstudantes()
 	estudantes = registrarIncompatibilidades(estudantes)
-	imprimirEstudantes(estudantes)
 
 	estudantesC1 := filtrarEstudantesPorTipo(estudantes, C1)
+
 	imprimirEstudantes(estudantesC1)
 	estudantesC2 := filtrarEstudantesPorTipo(estudantes, C2)
 	imprimirEstudantes(estudantesC2)
@@ -79,28 +79,27 @@ type estudante struct {
 }
 
 func (e *estudante) str() string {
-	comoString := "Nome: " + e.nome + "\n"
+	s := "Nome: " + e.nome + "\n"
 	var curso string
 	if e.curso == C1 {
 		curso = "C1"
 	} else {
 		curso = "C2"
 	}
-	comoString += "Curso: " + curso + "\n"
-
+	s += "Curso: " + curso + "\n"
+	s += "Incompatíveis: "
 	if len(e.estudantesIncompatíveis) > 0 {
-		comoString += "Incompatíveis: "
 		for i := 0; i < len(e.estudantesIncompatíveis)-1; i++ {
-			comoString += e.estudantesIncompatíveis[i].nome + ", "
+			s += e.estudantesIncompatíveis[i].nome + ", "
 		}
-		comoString += e.estudantesIncompatíveis[len(e.estudantesIncompatíveis)-1].nome
+		s += e.estudantesIncompatíveis[len(e.estudantesIncompatíveis)-1].nome
 	}
 
-	return comoString
+	return s
 }
 
 func imprimirEstudantes(estudantes []estudante) {
 	for i := 0; i < len(estudantes); i++ {
-		fmt.Printf("%v\n", estudantes[i].str())
+		fmt.Println(estudantes[i].str())
 	}
 }
