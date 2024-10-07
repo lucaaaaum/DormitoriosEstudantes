@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"math/rand"
 )
@@ -12,34 +11,52 @@ func main() {
 
 	estudantesC1 := filtrarEstudantesPorTipo(estudantes, C1)
 	rand.Shuffle(len(estudantesC1), func(i, j int) { estudantesC1[i], estudantesC1[j] = estudantesC1[j], estudantesC1[i] })
-	imprimirEstudantes(estudantesC1)
 	estudantesC2 := filtrarEstudantesPorTipo(estudantes, C2)
 	rand.Shuffle(len(estudantesC2), func(i, j int) { estudantesC2[i], estudantesC2[j] = estudantesC2[j], estudantesC2[i] })
-	imprimirEstudantes(estudantesC2)
 
-	pares, err := obterPares(estudantesC1, estudantesC2, 100)
+	pares, estudantesSemPar := obterPares(estudantesC1, estudantesC2, 100)
+    fmt.Println("PARES")
 	for i := 0; i < len(pares); i++ {
 		imprimirPar(i, pares[i])
 	}
-	if err != nil {
-		fmt.Printf("err: %v\n", err)
-	}
+    fmt.Println("ESTUDANTES SEM PAR")
+    for i := 0; i < len(estudantesSemPar); i++ {
+        fmt.Printf("%v\n", estudantesSemPar[i].str())
+    }
 }
 
-func obterPares(estudantesC1 []estudante, estudantesC2 []estudante, quantidadeDeParesEsperada int) ([]par, error) {
-	var pares []par
+func obterPares(estudantesC1, estudantesC2 []estudante, quantidadeDeDormitórios int) ([]par, []estudante) {
+    var pares []par
+    quantidadeMáximaDePares := quantidadeDeDormitórios/2
 	for i := 0; i < len(estudantesC1); i++ {
+        e1 := estudantesC1[i]
+        var e2 estudante
 		for j := 0; j < len(estudantesC2); j++ {
 			if estudanteJáFoiEscolhido(estudantesC2[j], pares) || sãoIncompatíveis(estudantesC1[i], estudantesC2[j]) {
 				continue
 			}
-			pares = append(pares, par{&estudantesC1[i], &estudantesC2[j]})
+            e2 = estudantesC2[j]
+            break
+		}
+        pares = append(pares, par{&e1, &e2})
+        if len(pares) >= quantidadeMáximaDePares {
+            break
+        }
+	}
+    var estudantesSemPar []estudante
+	if len(pares) != quantidadeMáximaDePares {
+		for i := 0; i < len(estudantesC1); i++ {
+            if !estudanteJáFoiEscolhido(estudantesC1[i], pares) {
+                estudantesSemPar = append(estudantesSemPar, estudantesC1[i])
+            }
+		}
+		for i := 0; i < len(estudantesC2); i++ {
+            if !estudanteJáFoiEscolhido(estudantesC2[i], pares) {
+                estudantesSemPar = append(estudantesSemPar, estudantesC2[i])
+            }
 		}
 	}
-	if len(pares) != quantidadeDeParesEsperada {
-		return nil, errors.New("Quantidade de pares inesperada. Esperava [" + fmt.Sprint(quantidadeDeParesEsperada) + "], mas conseguiu formar [" + fmt.Sprint(len(pares)) + "]")
-	}
-	return pares, nil
+	return pares, estudantesSemPar 
 }
 
 type par struct {
@@ -57,7 +74,7 @@ func imprimirPar(n int, p par) {
 
 func estudanteJáFoiEscolhido(e estudante, par []par) bool {
 	for i := 0; i < len(par); i++ {
-		if par[i].estudante2.nome == e.nome {
+		if par[i].estudante1.nome == e.nome || par[i].estudante2.nome == e.nome {
 			return true
 		}
 	}
