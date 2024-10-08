@@ -15,48 +15,48 @@ func main() {
 	rand.Shuffle(len(estudantesC2), func(i, j int) { estudantesC2[i], estudantesC2[j] = estudantesC2[j], estudantesC2[i] })
 
 	pares, estudantesSemPar := obterPares(estudantesC1, estudantesC2, 100)
-    fmt.Println("PARES")
+	fmt.Println("PARES")
 	for i := 0; i < len(pares); i++ {
 		imprimirPar(i, pares[i])
 	}
-    fmt.Println("ESTUDANTES SEM PAR")
-    for i := 0; i < len(estudantesSemPar); i++ {
-        fmt.Printf("%v\n", estudantesSemPar[i].str())
-    }
+	fmt.Println("ESTUDANTES SEM PAR")
+	for i := 0; i < len(estudantesSemPar); i++ {
+		fmt.Printf("%v\n", estudantesSemPar[i].str())
+	}
 }
 
 func obterPares(estudantesC1, estudantesC2 []estudante, quantidadeDeDormitórios int) ([]par, []estudante) {
-    var pares []par
-    quantidadeMáximaDePares := quantidadeDeDormitórios/2
+	var pares []par
+	quantidadeMáximaDePares := quantidadeDeDormitórios / 2
 	for i := 0; i < len(estudantesC1); i++ {
-        e1 := estudantesC1[i]
-        var e2 estudante
+		e1 := estudantesC1[i]
+		var e2 estudante
 		for j := 0; j < len(estudantesC2); j++ {
 			if estudanteJáFoiEscolhido(estudantesC2[j], pares) || sãoIncompatíveis(estudantesC1[i], estudantesC2[j]) {
 				continue
 			}
-            e2 = estudantesC2[j]
-            break
+			e2 = estudantesC2[j]
+			break
 		}
-        pares = append(pares, par{&e1, &e2})
-        if len(pares) >= quantidadeMáximaDePares {
-            break
-        }
+		pares = append(pares, par{&e1, &e2})
+		if len(pares) >= quantidadeMáximaDePares {
+			break
+		}
 	}
-    var estudantesSemPar []estudante
+	var estudantesSemPar []estudante
 	if len(pares) != quantidadeMáximaDePares {
 		for i := 0; i < len(estudantesC1); i++ {
-            if !estudanteJáFoiEscolhido(estudantesC1[i], pares) {
-                estudantesSemPar = append(estudantesSemPar, estudantesC1[i])
-            }
+			if !estudanteJáFoiEscolhido(estudantesC1[i], pares) {
+				estudantesSemPar = append(estudantesSemPar, estudantesC1[i])
+			}
 		}
 		for i := 0; i < len(estudantesC2); i++ {
-            if !estudanteJáFoiEscolhido(estudantesC2[i], pares) {
-                estudantesSemPar = append(estudantesSemPar, estudantesC2[i])
-            }
+			if !estudanteJáFoiEscolhido(estudantesC2[i], pares) {
+				estudantesSemPar = append(estudantesSemPar, estudantesC2[i])
+			}
 		}
 	}
-	return pares, estudantesSemPar 
+	return pares, estudantesSemPar
 }
 
 type par struct {
