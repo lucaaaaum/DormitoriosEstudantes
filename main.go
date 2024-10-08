@@ -3,18 +3,42 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"os"
+	"strconv"
 )
 
 func main() {
-	estudantes := iniciarListaDeEstudantes()
-	estudantes = registrarIncompatibilidades(estudantes)
+	seed, err := strconv.Atoi(os.Args[1])
+	if err != nil {
+		panic(err)
+	}
+	randomSource := rand.NewSource(int64(seed))
+	random := rand.New(randomSource)
 
-	estudantesC1 := filtrarEstudantesPorTipo(estudantes, C1)
-	rand.Shuffle(len(estudantesC1), func(i, j int) { estudantesC1[i], estudantesC1[j] = estudantesC1[j], estudantesC1[i] })
-	estudantesC2 := filtrarEstudantesPorTipo(estudantes, C2)
-	rand.Shuffle(len(estudantesC2), func(i, j int) { estudantesC2[i], estudantesC2[j] = estudantesC2[j], estudantesC2[i] })
+	quantidadeDeEstudantesC1, err := strconv.Atoi(os.Args[2])
+	if err != nil {
+		panic(err)
+	}
 
-	pares, estudantesSemPar := obterPares(estudantesC1, estudantesC2, 100)
+	quantidadeDeEstudantesC2, err := strconv.Atoi(os.Args[3])
+	if err != nil {
+		panic(err)
+	}
+
+	estudantesC1 := iniciarListaDeEstudantes(quantidadeDeEstudantesC1, C1)
+	random.Shuffle(len(estudantesC1), func(i, j int) { estudantesC1[i], estudantesC1[j] = estudantesC1[j], estudantesC1[i] })
+	estudantesC2 := iniciarListaDeEstudantes(quantidadeDeEstudantesC2, C2)
+	random.Shuffle(len(estudantesC2), func(i, j int) { estudantesC2[i], estudantesC2[j] = estudantesC2[j], estudantesC2[i] })
+
+	estudantesC1 = registrarIncompatibilidades(estudantesC1, estudantesC2, *random)
+	estudantesC2 = registrarIncompatibilidades(estudantesC2, estudantesC1, *random)
+
+	quantidadeDeDormitórios, err := strconv.Atoi(os.Args[4])
+	if err != nil {
+		panic(err)
+	}
+
+	pares, estudantesSemPar := obterPares(estudantesC1, estudantesC2, quantidadeDeDormitórios)
 	fmt.Println("PARES")
 	for i := 0; i < len(pares); i++ {
 		imprimirPar(i, pares[i])
@@ -99,43 +123,39 @@ func sãoIncompatíveis(e1, e2 estudante) bool {
 
 // Funções para gerar a lista de estudantes e imprimir as informações
 
-func iniciarListaDeEstudantes() []estudante {
+func iniciarListaDeEstudantes(quantidade int, curso Curso) []estudante {
 	listaDeEstudantes := make([]estudante, 0)
-	for i := 0; i < 100; i++ {
-		var curso Curso
-		if i%2 == 0 {
-			curso = C1
-		} else {
-			curso = C2
-		}
+	for i := 0; i < quantidade; i++ {
 		listaDeEstudantes = append(listaDeEstudantes, estudante{nome: "Estudante" + fmt.Sprint(i), curso: curso})
 	}
 	return listaDeEstudantes
 }
 
-func registrarIncompatibilidades(estudantes []estudante) []estudante {
-	randomSource := rand.NewSource(123312) // número pré-definido para facilitar os testes
-	random := rand.New(randomSource)
-	for i := 0; i < len(estudantes); i++ {
-		quantidadeDeIncompatíveis := random.Intn(5)
+func registrarIncompatibilidades(estudantes1, estudantes2 []estudante, random rand.Rand) []estudante {
+	for i := 0; i < len(estudantes1); i++ {
+		quantidadeDeIncompatíveis := random.Intn(len(estudantes2) - 1)
 		for j := 0; j < quantidadeDeIncompatíveis; j++ {
 			var estudanteIncompatívelAleatório int
-
-			// tem que ser um loop porque não é permitido um aluno ser incompatível com ele mesmo
 			for true {
-				estudanteIncompatívelAleatório = random.Intn(len(estudantes) - 1)
-				if estudanteIncompatívelAleatório != i {
-					break
-				}
+				estudanteIncompatívelAleatório = random.Intn(len(estudantes2) - 1)
+                var estudanteJáFoiRegistradoComoIncompatível bool
+                for k := 0; k < len(estudantes1[i].estudantesIncompatíveis); k++ {
+                    estudanteJáFoiRegistradoComoIncompatível = estudantes1[i].estudantesIncompatíveis[k].nome == estudantes2[estudanteIncompatívelAleatório].nome
+                    if estudanteJáFoiRegistradoComoIncompatível {
+                        break
+                    }
+                }
+                if !estudanteJáFoiRegistradoComoIncompatível {
+                    break
+                }
 			}
-
-			estudantes[i].estudantesIncompatíveis = append(
-				estudantes[i].estudantesIncompatíveis,
-				&estudantes[estudanteIncompatívelAleatório],
+			estudantes1[i].estudantesIncompatíveis = append(
+				estudantes1[i].estudantesIncompatíveis,
+				&estudantes2[estudanteIncompatívelAleatório],
 			)
 		}
 	}
-	return estudantes
+	return estudantes1
 }
 
 func filtrarEstudantesPorTipo(estudantes []estudante, curso Curso) []estudante {
