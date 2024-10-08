@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
+	"time"
 )
 
 func main() {
@@ -38,7 +39,10 @@ func main() {
 		panic(err)
 	}
 
+	início := time.Now()
 	pares, estudantesSemPar := obterPares(estudantesC1, estudantesC2, quantidadeDeDormitórios)
+	duração := time.Since(início)
+
 	fmt.Println("PARES")
 	for i := 0; i < len(pares); i++ {
 		imprimirPar(i, pares[i])
@@ -47,6 +51,8 @@ func main() {
 	for i := 0; i < len(estudantesSemPar); i++ {
 		fmt.Printf("%v\n", estudantesSemPar[i].str())
 	}
+
+    fmt.Printf("Duração: [%s]\n", duração)
 }
 
 func obterPares(estudantesC1, estudantesC2 []estudante, quantidadeDeDormitórios int) ([]par, []estudante) {
@@ -138,16 +144,16 @@ func registrarIncompatibilidades(estudantes1, estudantes2 []estudante, random ra
 			var estudanteIncompatívelAleatório int
 			for true {
 				estudanteIncompatívelAleatório = random.Intn(len(estudantes2) - 1)
-                var estudanteJáFoiRegistradoComoIncompatível bool
-                for k := 0; k < len(estudantes1[i].estudantesIncompatíveis); k++ {
-                    estudanteJáFoiRegistradoComoIncompatível = estudantes1[i].estudantesIncompatíveis[k].nome == estudantes2[estudanteIncompatívelAleatório].nome
-                    if estudanteJáFoiRegistradoComoIncompatível {
-                        break
-                    }
-                }
-                if !estudanteJáFoiRegistradoComoIncompatível {
-                    break
-                }
+				var estudanteJáFoiRegistradoComoIncompatível bool
+				for k := 0; k < len(estudantes1[i].estudantesIncompatíveis); k++ {
+					estudanteJáFoiRegistradoComoIncompatível = estudantes1[i].estudantesIncompatíveis[k].nome == estudantes2[estudanteIncompatívelAleatório].nome
+					if estudanteJáFoiRegistradoComoIncompatível {
+						break
+					}
+				}
+				if !estudanteJáFoiRegistradoComoIncompatível {
+					break
+				}
 			}
 			estudantes1[i].estudantesIncompatíveis = append(
 				estudantes1[i].estudantesIncompatíveis,
